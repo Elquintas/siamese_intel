@@ -1,0 +1,79 @@
+
+
+Training Files:
+
+In order to train a new siamese model, the following files 
+are required:
+
+	-> The individual aligned files used for training.
+		these files should be numeric, where each line 
+		corresponds to the extracted features per frame used
+		(e.g. MFCCS, filterbanks, posteriors, etc.)
+		
+		These files should be in the /data_mfccs/ or a
+		similar directory
+
+	-> The pairs file.
+		This file has the pairs use for training a specific
+		model. The file should be in the format:
+	
+		"phoneme1,0,phoneme2,0" if both phonemes are the same
+		consonant (positive pair), or the format "phoneme1,0,phoneme2,1" if 
+		they correspond to different consonants (negative pair) the label
+		is computed as the difference between the two numbers, and can be 
+		changed in the siamese.py code. 
+
+		These files should be in the directory /individual_phonemes/
+
+	-> The reference files.
+		These files contain an index of the phonemes used during training.
+		There should be individual reference files for each one of the 16 
+		consonants used. These files are important for computing the similarity
+		between the reference phonemes and new unseen phonemes (done during
+		testing and inference).
+
+		These files should be in the directory /reference/		
+
+The directory /checkpoints/ corresponds to the output directory where the
+finished trained models are stored. Due to the fast nature of the training,
+the system only outputs one file, that is overwritten every new checkpoint
+interval.
+
+The directory /pats_test_mfccs/ contains the speakers that are used to validate 
+the system. Inside this directory there are several sub-dirs that contain the 
+different phonemes split by class.
+
+The directory /pats_full_mfccs/ contains several subdirs each one corresponding 
+to an unseen speaker. Inside one of this subdirs there are also several subdirs
+corresponding to the different phonemes split by class.
+
+
+The file **classes.py** contains the dataloaders and also the discriminated
+architecture of the system.
+
+The file **hparams.py** contains the hyperparameters used. Every hyperparameter 
+contains a small explanation.
+
+The file **siamese.py** contains the full training pipeline of the system
+
+The file **test_phonemes.py** contains the code to calculate the new similarity
+measures with unseen phonemes, comparing each new unseen phoneme with all the
+reference phonemes of a specific class that were seen during training.
+	
+	usage:
+	python test_phonemes.py ./pats_test_mfccs/s-cons/ ./reference/s_filenames.csv ./checkpoints/model.pth
+	in this case we will be comparing every /s/ phoneme present in the validation
+	set with the reference /s/ phonemes seen during training, using a trained model
+	in a given directory (in this case, ./checkpoints/model.pth)
+
+
+The file **siamese.py** trains the siamese system given the specifications
+defined in hparams.py, and also the training files previously mentioned
+
+The file **sim_calc_eval.sh** is a bash script that automates the validation
+process
+
+The file **sim_calc.sh** is a bash script that computes the similarity measures
+for the new unseen speakers.
+
+
